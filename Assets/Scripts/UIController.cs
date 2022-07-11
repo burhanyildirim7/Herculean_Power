@@ -48,7 +48,7 @@ public class UIController : MonoBehaviour
         //PlayerController.instance.SetArmForGaming();
         TapToStartPanel.SetActive(false);
         GamePanel.SetActive(true);
-        SetLevelText(LevelController.instance.totalLevelNo);
+        //SetLevelText(LevelController.instance.totalLevelNo);
         SetGamePlayScoreText();
 
     }
