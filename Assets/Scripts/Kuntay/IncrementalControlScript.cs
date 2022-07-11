@@ -6,28 +6,33 @@ using UnityEngine.UI;
 public class IncrementalControlScript : MonoBehaviour
 {
     [SerializeField] List<GameObject> _sagSutunListesi = new List<GameObject>(), _solSutunListesi = new List<GameObject>(), _karakterListesi = new List<GameObject>();
-    [SerializeField] GameObject _yikiciObj,_powerButonPasifPaneli, _staminaButonPasifPaneli, _incomeButonPasifPaneli;
+    [SerializeField] GameObject _yikiciObj, _powerButonPasifPaneli, _staminaButonPasifPaneli, _incomeButonPasifPaneli;
     [SerializeField] Text _powerIncLevelText, _staminaIncLevelText, _incomeIncLevelText, _powerIncBedelText, _staminaIncBedelText, _incomeIncBedelText;
-    [SerializeField] int  _powerIncBedelDeger, _staminaIncBedelDeger, _incomeIncBedelDeger;
+    [SerializeField] int _powerIncBedelDeger, _staminaIncBedelDeger, _incomeIncBedelDeger;
     [SerializeField] List<int> _incrementalBedel = new List<int>();
+
+    [SerializeField] private Slider _ustStaminaSlider;
+    [SerializeField] private List<GameObject> _emojiList = new List<GameObject>();
 
     private int _karakteriGeriCekenKuvvetSayaci;
 
     public bool _yikim;
 
+    private float _staminaDeger;
+
     // Start is called before the first frame update
     void Start()
     {
-        if (PlayerPrefs.GetInt("ButtonlarIcinIlkSefer")==0)
+        if (PlayerPrefs.GetInt("ButtonlarIcinIlkSefer") == 0)
         {
-            PlayerPrefs.SetInt("SutunDegisimSayaci",0);
+            PlayerPrefs.SetInt("SutunDegisimSayaci", 0);
             PlayerPrefs.SetInt("PowerLevelDegeri", 1);
             PlayerPrefs.SetInt("StaminaLevelDegeri", 1);
             PlayerPrefs.SetInt("IncomeLevelDegeri", 0);
 
             _powerIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("PowerLevelDegeri").ToString();
             _staminaIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("StaminaLevelDegeri").ToString();
-            _incomeIncLevelText.text = "+$ "+PlayerPrefs.GetInt("IncomeLevelDegeri").ToString();
+            _incomeIncLevelText.text = "+$ " + PlayerPrefs.GetInt("IncomeLevelDegeri").ToString();
 
             _powerIncBedelText.text = "$" + _powerIncBedelDeger.ToString();
             _staminaIncBedelText.text = "$" + _staminaIncBedelDeger.ToString();
@@ -68,7 +73,7 @@ public class IncrementalControlScript : MonoBehaviour
                 _staminaButonPasifPaneli.SetActive(false);
             }
 
-            if (PlayerPrefs.GetInt("IncomeLevelDegeri") ==75)
+            if (PlayerPrefs.GetInt("IncomeLevelDegeri") == 75)
             {
                 _incomeIncLevelText.text = "MAX";
                 _incomeIncBedelText.text = "MAX";
@@ -83,7 +88,7 @@ public class IncrementalControlScript : MonoBehaviour
         }
         for (int i = 0; i < _karakterListesi.Count; i++)
         {
-            if (i==PlayerPrefs.GetInt("KarakterSirasi"))
+            if (i == PlayerPrefs.GetInt("KarakterSirasi"))
             {
                 _karakterListesi[i].SetActive(true);
             }
@@ -93,7 +98,9 @@ public class IncrementalControlScript : MonoBehaviour
             }
 
         }
-        
+
+        BaslangicButonAyarlari();
+
     }
 
     // Update is called once per frame
@@ -101,24 +108,254 @@ public class IncrementalControlScript : MonoBehaviour
     {
         if (GameController.instance.isContinue == true)
         {
+            _staminaDeger -= Time.deltaTime;
+
+            _ustStaminaSlider.value = _staminaDeger;
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + 10);
+                UIController.instance.SetGamePlayScoreText();
+
+                if (_staminaDeger < 22)
+                {
+                    _staminaDeger += 1;
+                }
+                else
+                {
+
+                }
+
+
+
+            }
+            else
+            {
+
+            }
+
+
+            StaminaSliderEmojileriAyarla();
+
+
             if (_yikim)
             {
                 Debug.Log(PlayerPrefs.GetInt("SutunDegisimSayaci"));
-                
+
                 _sagSutunListesi[PlayerPrefs.GetInt("SutunDegisimSayaci")].GetComponent<KinematicAcma>().OpenKinematic();
                 _solSutunListesi[PlayerPrefs.GetInt("SutunDegisimSayaci")].GetComponent<KinematicAcma>().OpenKinematic();
             }
         }
     }
 
+    private void BaslangicButonAyarlari()
+    {
+        if (PlayerPrefs.GetInt("totalScore") < _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")])
+        {
+            _powerButonPasifPaneli.SetActive(true);
+        }
+        else
+        {
+            _powerButonPasifPaneli.SetActive(false);
+        }
+
+        if (PlayerPrefs.GetInt("totalScore") < _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")])
+        {
+            _staminaButonPasifPaneli.SetActive(true);
+        }
+        else
+        {
+            _staminaButonPasifPaneli.SetActive(false);
+        }
+
+        if (PlayerPrefs.GetInt("totalScore") < _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")])
+        {
+            _incomeButonPasifPaneli.SetActive(true);
+        }
+        else
+        {
+            _incomeButonPasifPaneli.SetActive(false);
+        }
+
+    }
+
+    private void StaminaSliderEmojileriAyarla()
+    {
+        if (_staminaDeger <= 2)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[0].SetActive(true);
+        }
+        else if (_staminaDeger > 2 && _staminaDeger <= 4)
+        {
+            _emojiList[0].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[1].SetActive(true);
+        }
+        else if (_staminaDeger > 4 && _staminaDeger <= 6)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[2].SetActive(true);
+        }
+        else if (_staminaDeger > 6 && _staminaDeger <= 8)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[3].SetActive(true);
+        }
+        else if (_staminaDeger > 8 && _staminaDeger <= 10)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[4].SetActive(true);
+        }
+        else if (_staminaDeger > 10 && _staminaDeger <= 12)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[5].SetActive(true);
+        }
+        else if (_staminaDeger > 12 && _staminaDeger <= 14)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[6].SetActive(true);
+        }
+        else if (_staminaDeger > 14 && _staminaDeger <= 16)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[7].SetActive(true);
+        }
+        else if (_staminaDeger > 16 && _staminaDeger <= 18)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[8].SetActive(true);
+        }
+        else if (_staminaDeger > 18 && _staminaDeger <= 20)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[10].SetActive(false);
+            _emojiList[9].SetActive(true);
+        }
+        else if (_staminaDeger > 20)
+        {
+            _emojiList[1].SetActive(false);
+            _emojiList[2].SetActive(false);
+            _emojiList[3].SetActive(false);
+            _emojiList[4].SetActive(false);
+            _emojiList[5].SetActive(false);
+            _emojiList[6].SetActive(false);
+            _emojiList[7].SetActive(false);
+            _emojiList[8].SetActive(false);
+            _emojiList[9].SetActive(false);
+            _emojiList[0].SetActive(false);
+            _emojiList[10].SetActive(true);
+        }
+        else
+        {
+
+        }
+    }
+
+
     public void PowerButonu()
     {
-        if (PlayerPrefs.GetInt("PowerLevelDegeri")<75)
+        if (PlayerPrefs.GetInt("PowerLevelDegeri") < 75 && PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")])
         {
+            PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") - _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")]);
             PlayerPrefs.SetInt("PowerLevelDegeri", PlayerPrefs.GetInt("PowerLevelDegeri") + 1);
             PlayerPrefs.SetInt("PowerCostDegeri", PlayerPrefs.GetInt("PowerCostDegeri") + 1);
             PlayerPrefs.SetInt("KarakterDegisimSayaci", PlayerPrefs.GetInt("KarakterDegisimSayaci") + 1);
             _powerIncBedelText.text = "$" + _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")];
+            UIController.instance.SetTapToStartScoreText();
+
+
+            BaslangicButonAyarlari();
+
             if (PlayerPrefs.GetInt("PowerLevelDegeri") == 75)
             {
                 _powerIncLevelText.text = "MAX";
@@ -128,7 +365,9 @@ public class IncrementalControlScript : MonoBehaviour
             else
             {
                 _powerIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("PowerLevelDegeri").ToString();
-                _powerButonPasifPaneli.SetActive(false);
+                //_powerButonPasifPaneli.SetActive(false);
+
+
             }
             if (PlayerPrefs.GetInt("KarakterDegisimSayaci") == 6)
             {
@@ -138,17 +377,23 @@ public class IncrementalControlScript : MonoBehaviour
         }
         else
         {
-
+            _powerButonPasifPaneli.SetActive(true);
         }
     }
 
     public void StaminaButonu()
     {
-        if (PlayerPrefs.GetInt("StaminaLevelDegeri") <75)
+        if (PlayerPrefs.GetInt("StaminaLevelDegeri") < 75 && PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")])
         {
+            PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") - _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")]);
             PlayerPrefs.SetInt("StaminaLevelDegeri", PlayerPrefs.GetInt("StaminaLevelDegeri") + 1);
             PlayerPrefs.SetInt("StaminaCostDegeri", PlayerPrefs.GetInt("StaminaCostDegeri") + 1);
             _staminaIncBedelText.text = "$" + _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")];
+            UIController.instance.SetTapToStartScoreText();
+
+
+            BaslangicButonAyarlari();
+
             if (PlayerPrefs.GetInt("StaminaLevelDegeri") == 75)
             {
                 _staminaIncLevelText.text = "MAX";
@@ -158,7 +403,8 @@ public class IncrementalControlScript : MonoBehaviour
             else
             {
                 _staminaIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("StaminaLevelDegeri").ToString();
-                _staminaButonPasifPaneli.SetActive(false);
+                //_staminaButonPasifPaneli.SetActive(false);
+
 
             }
 
@@ -166,7 +412,7 @@ public class IncrementalControlScript : MonoBehaviour
         }
         else
         {
-
+            _staminaButonPasifPaneli.SetActive(true);
         }
 
 
@@ -174,11 +420,17 @@ public class IncrementalControlScript : MonoBehaviour
 
     public void IncomeButonu()
     {
-        if (PlayerPrefs.GetInt("IncomeLevelDegeri") <75)
+        if (PlayerPrefs.GetInt("IncomeLevelDegeri") < 75 && PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")])
         {
+            PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") - _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")]);
             PlayerPrefs.SetInt("IncomeLevelDegeri", PlayerPrefs.GetInt("IncomeLevelDegeri") + 1);
             PlayerPrefs.SetInt("IncomeCostDegeri", PlayerPrefs.GetInt("IncomeCostDegeri") + 1);
             _incomeIncBedelText.text = "$" + _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")];
+            UIController.instance.SetTapToStartScoreText();
+
+
+            BaslangicButonAyarlari();
+
             if (PlayerPrefs.GetInt("IncomeLevelDegeri") == 75)
             {
                 _incomeIncLevelText.text = "MAX";
@@ -188,12 +440,14 @@ public class IncrementalControlScript : MonoBehaviour
             else
             {
                 _incomeIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("IncomeLevelDegeri").ToString();
-                _incomeButonPasifPaneli.SetActive(false);
+                //_incomeButonPasifPaneli.SetActive(false);
+
+
             }
         }
         else
         {
-
+            _incomeButonPasifPaneli.SetActive(true);
         }
     }
 
