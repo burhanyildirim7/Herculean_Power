@@ -81,7 +81,7 @@ public class UIController : MonoBehaviour
     /// </summary>
     public void SetGamePlayScoreText()
     {
-        gamePlayScoreText.text = PlayerPrefs.GetInt("totalScore").ToString();
+        //gamePlayScoreText.text = PlayerPrefs.GetInt("totalScore").ToString();
     }
 
 
@@ -90,7 +90,7 @@ public class UIController : MonoBehaviour
     /// </summary>
     public void SetTapToStartScoreText()
     {
-        tapToStartScoreText.text = PlayerPrefs.GetInt("totalScore").ToString();
+       // tapToStartScoreText.text = PlayerPrefs.GetInt("totalScore").ToString();
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class UIController : MonoBehaviour
     /// </summary>
     public void WinScreenScore()
     {
-        winScreenScoreText.text = GameController.instance.score.ToString();
+       // winScreenScoreText.text = GameController.instance.score.ToString();
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class UIController : MonoBehaviour
     /// </summary>
     public void SetTotalElmasText()
     {
-        totalElmasText.text = PlayerPrefs.GetInt("totalElmas").ToString();
+       // totalElmasText.text = PlayerPrefs.GetInt("totalElmas").ToString();
     }
 
     /// <summary>
@@ -223,7 +223,7 @@ public class UIController : MonoBehaviour
         WinPanel.SetActive(false);
         LoosePanel.SetActive(false);
         GamePanel.SetActive(false);
-        tapToStartScoreText.text = PlayerPrefs.GetInt("totalScore").ToString();
+       // tapToStartScoreText.text = PlayerPrefs.GetInt("totalScore").ToString();
     }
 
 
