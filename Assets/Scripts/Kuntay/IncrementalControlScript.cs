@@ -11,14 +11,19 @@ public class IncrementalControlScript : MonoBehaviour
     [SerializeField] int _powerIncBedelDeger, _staminaIncBedelDeger, _incomeIncBedelDeger;
     [SerializeField] List<int> _incrementalBedel = new List<int>();
 
-    [SerializeField] private Slider _ustStaminaSlider;
+    [SerializeField] private Slider _staminaSlider;
     [SerializeField] private List<GameObject> _emojiList = new List<GameObject>();
+
+    [SerializeField] private Slider _ustGucSlider;
+    [SerializeField] private Slider _altGucSlider;
 
     private int _karakteriGeriCekenKuvvetSayaci;
 
     public bool _yikim;
 
     private float _staminaDeger;
+
+    private float _time;
 
     // Start is called before the first frame update
     void Start()
@@ -101,6 +106,12 @@ public class IncrementalControlScript : MonoBehaviour
 
         BaslangicButonAyarlari();
 
+        _time = 0;
+        Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
+        _karakterAnimation.SetFloat("Time", _time);
+
+        _ustGucSlider.value = 0;
+        _altGucSlider.value = 0;
     }
 
     // Update is called once per frame
@@ -108,24 +119,105 @@ public class IncrementalControlScript : MonoBehaviour
     {
         if (GameController.instance.isContinue == true)
         {
-            _staminaDeger -= Time.deltaTime;
 
-            _ustStaminaSlider.value = _staminaDeger;
 
-            if (Input.GetMouseButtonDown(0))
+
+            Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
+
+
+
+
+            if (_time < 0.7f)
             {
-                PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + 10);
-                UIController.instance.SetGamePlayScoreText();
-
-                if (_staminaDeger < 22)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    _staminaDeger += 1;
+                    PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + 10);
+                    UIController.instance.SetGamePlayScoreText();
+
+                    if (_staminaDeger < 22)
+                    {
+                        _staminaDeger += 1.5f;
+
+                        if (_ustGucSlider.value < _altGucSlider.value)
+                        {
+                            _ustGucSlider.value += 1;
+                        }
+                        else
+                        {
+                            _altGucSlider.value = _ustGucSlider.value;
+                            _ustGucSlider.value += 1;
+                            _altGucSlider.value = _ustGucSlider.value;
+                            //_altGucSlider.value += 1;
+                        }
+
+
+                        //Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
+                        if (_time < 0.7f)
+                        {
+                            _time += 0.05f;
+                            _karakterAnimation.SetFloat("Time", _time);
+                        }
+                        else
+                        {
+
+                        }
+
+                    }
+                    else
+                    {
+
+                    }
+
+
+
                 }
                 else
                 {
+                    if (_staminaDeger > 0)
+                    {
+                        _staminaDeger -= Time.deltaTime * 2;
+                    }
+                    else
+                    {
 
+                    }
+
+                    _staminaSlider.value = _staminaDeger;
+
+                    if (_time > 0)
+                    {
+                        _time -= 0.0005f;
+                        _karakterAnimation.SetFloat("Time", _time);
+
+                        _ustGucSlider.value -= 0.01f;
+
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (_ustGucSlider.value > _altGucSlider.value)
+                    {
+                        _altGucSlider.value = _ustGucSlider.value;
+                    }
+                    else
+                    {
+
+                    }
                 }
+            }
+            else
+            {
+                _ustGucSlider.value += Time.deltaTime * 30;
+                _altGucSlider.value += Time.deltaTime * 30;
+            }
 
+
+            if (_time > 0.7f && _time < 1)
+            {
+                _time += Time.deltaTime;
+                _karakterAnimation.SetFloat("Time", _time);
 
 
             }
@@ -133,6 +225,8 @@ public class IncrementalControlScript : MonoBehaviour
             {
 
             }
+
+
 
 
             StaminaSliderEmojileriAyarla();
