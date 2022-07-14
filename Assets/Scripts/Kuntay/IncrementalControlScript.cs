@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Obi;
 
 public class IncrementalControlScript : MonoBehaviour
 {
@@ -112,6 +113,8 @@ public class IncrementalControlScript : MonoBehaviour
 
         _ustGucSlider.value = 0;
         _altGucSlider.value = 0;
+
+        _yikim = false;
     }
 
     // Update is called once per frame
@@ -219,6 +222,18 @@ public class IncrementalControlScript : MonoBehaviour
                 _time += Time.deltaTime;
                 _karakterAnimation.SetFloat("Time", _time);
 
+                if (_yikim == false)
+                {
+                    _yikim = true;
+                    _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriKopart();
+
+                }
+                else
+                {
+
+                }
+
+
 
             }
             else
@@ -227,7 +242,7 @@ public class IncrementalControlScript : MonoBehaviour
             }
 
 
-
+            //GetComponent<ObiParticleAttachment>().attachmentType = ObiParticleAttachment.AttachmentType.Dynamic;
 
             StaminaSliderEmojileriAyarla();
 
@@ -239,6 +254,10 @@ public class IncrementalControlScript : MonoBehaviour
                 _sagSutunListesi[PlayerPrefs.GetInt("SutunDegisimSayaci")].GetComponent<KinematicAcma>().OpenKinematic();
                 _solSutunListesi[PlayerPrefs.GetInt("SutunDegisimSayaci")].GetComponent<KinematicAcma>().OpenKinematic();
             }
+        }
+        else
+        {
+
         }
     }
 
