@@ -18,6 +18,9 @@ public class IncrementalControlScript : MonoBehaviour
     [SerializeField] private Slider _ustGucSlider;
     [SerializeField] private Slider _altGucSlider;
 
+    [SerializeField] private GameObject _coinObjesi;
+    [SerializeField] private GameObject _coinParent;
+
     private int _karakteriGeriCekenKuvvetSayaci;
 
     public bool _yikim;
@@ -150,6 +153,24 @@ public class IncrementalControlScript : MonoBehaviour
                             _altGucSlider.value = _ustGucSlider.value;
                             _ustGucSlider.value += 1;
                             _altGucSlider.value = _ustGucSlider.value;
+
+
+                            //_altGucSlider.value += 1;
+                        }
+
+                        if (_ustGucSlider.value >= _altGucSlider.value)
+                        {
+
+                            for (int i = 0; i < 10; i++)
+                            {
+                                GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
+                                coin.transform.parent = _coinParent.transform;
+                                GameController.instance.SetScore(1);
+                            }
+                        }
+                        else
+                        {
+
                             //_altGucSlider.value += 1;
                         }
 
@@ -168,7 +189,7 @@ public class IncrementalControlScript : MonoBehaviour
                     }
                     else
                     {
-
+                        UIController.instance.ActivateLooseScreen();
                     }
 
 
@@ -227,6 +248,15 @@ public class IncrementalControlScript : MonoBehaviour
                     _yikim = true;
                     _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriKopart();
 
+                    for (int i = 0; i < 50; i++)
+                    {
+                        GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
+                        coin.transform.parent = _coinParent.transform;
+                        GameController.instance.SetScore(1);
+                    }
+
+                    StartCoroutine(WinSenaryosu());
+
                 }
                 else
                 {
@@ -259,6 +289,13 @@ public class IncrementalControlScript : MonoBehaviour
         {
 
         }
+    }
+
+    private IEnumerator WinSenaryosu()
+    {
+        yield return new WaitForSeconds(3f);
+
+        UIController.instance.ActivateWinScreen();
     }
 
     private void BaslangicButonAyarlari()
