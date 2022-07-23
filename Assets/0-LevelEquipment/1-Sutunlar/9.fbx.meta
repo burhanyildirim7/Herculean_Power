@@ -3,7 +3,22 @@ guid: f80278e1db1744c52adbae6e562109ba
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mermer
+    second: {fileID: 2100000, guid: ee93163295c5448c3b0eb04735c81188, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metal
+    second: {fileID: 2100000, guid: 28cf12420c2224ed68d684163fc06656, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "ta\u015F"
+    second: {fileID: 2100000, guid: 4e64bce969402474fbba10b061c8fcb8, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

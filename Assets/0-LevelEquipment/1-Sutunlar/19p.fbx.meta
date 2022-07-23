@@ -3,7 +3,47 @@ guid: 0f5e90f186f38496da5b2d955ea8c1bb
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KUYRUK
+    second: {fileID: 2100000, guid: 3d59cf7b964db4bc091d6dfde28953fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: YELE
+    second: {fileID: 2100000, guid: bdadb580539d640a6809f6c668af85dc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: at
+    second: {fileID: 2100000, guid: 46291abc083c8451aa8667d382581feb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "atg\xF6z"
+    second: {fileID: 2100000, guid: dd326e1cebf3440e5ae8db9cb39c657f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: burunat
+    second: {fileID: 2100000, guid: e77dc2857423946cbab6f570af58f5c2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metal
+    second: {fileID: 2100000, guid: b1a4e3e7161de451a94b8a328850a519, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: toynak
+    second: {fileID: 2100000, guid: 8caa418a78bda4efd917dd2d25324bfb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: zemin
+    second: {fileID: 2100000, guid: 5271c54de5e3b4ac5b83a4c5178ae651, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

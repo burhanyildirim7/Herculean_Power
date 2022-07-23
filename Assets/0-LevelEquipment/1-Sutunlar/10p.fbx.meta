@@ -3,7 +3,27 @@ guid: e492e4c96ed564f1f8e2d7e6bb0526f0
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.009
+    second: {fileID: 2100000, guid: 02d490e241731440abddb313d481fd4b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.024
+    second: {fileID: 2100000, guid: 1c776bc1961114c048ceda2a9ada4db3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metal
+    second: {fileID: 2100000, guid: 4d862178b465d4a01870a643fe05e3fa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "s\xFCtun"
+    second: {fileID: 2100000, guid: 87a7d0e2a6145430dba5e625caac2b49, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
