@@ -6,7 +6,10 @@ using Obi;
 
 public class IncrementalControlScript : MonoBehaviour
 {
-    [SerializeField] List<GameObject> _sagSutunListesi = new List<GameObject>(), _solSutunListesi = new List<GameObject>(), _karakterListesi = new List<GameObject>();
+
+    public static IncrementalControlScript instance;
+
+    public List<GameObject> _sagSutunListesi = new List<GameObject>(), _solSutunListesi = new List<GameObject>(), _karakterListesi = new List<GameObject>();
     [SerializeField] GameObject _yikiciObj, _powerButonPasifPaneli, _staminaButonPasifPaneli, _incomeButonPasifPaneli;
     [SerializeField] Text _powerIncLevelText, _staminaIncLevelText, _incomeIncLevelText, _powerIncBedelText, _staminaIncBedelText, _incomeIncBedelText;
     [SerializeField] int _powerIncBedelDeger, _staminaIncBedelDeger, _incomeIncBedelDeger;
@@ -28,6 +31,12 @@ public class IncrementalControlScript : MonoBehaviour
     private float _staminaDeger;
 
     private float _time;
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+        //else Destroy(this);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -118,10 +127,16 @@ public class IncrementalControlScript : MonoBehaviour
         _altGucSlider.value = 0;
 
         _yikim = false;
+
+        _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(true);
+        _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(true);
+
+        _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriYerlestir();
+
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (GameController.instance.isContinue == true)
         {
@@ -281,8 +296,8 @@ public class IncrementalControlScript : MonoBehaviour
             {
                 Debug.Log(PlayerPrefs.GetInt("SutunDegisimSayaci"));
 
-                _sagSutunListesi[PlayerPrefs.GetInt("SutunDegisimSayaci")].GetComponent<KinematicAcma>().OpenKinematic();
-                _solSutunListesi[PlayerPrefs.GetInt("SutunDegisimSayaci")].GetComponent<KinematicAcma>().OpenKinematic();
+                _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].GetComponent<KinematicAcma>().OpenKinematic();
+                _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].GetComponent<KinematicAcma>().OpenKinematic();
             }
         }
         else
@@ -601,9 +616,17 @@ public class IncrementalControlScript : MonoBehaviour
         }
     }
 
-    public void SutunDegis()
+    private IEnumerator SutunDegis()
     {
+        _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(false);
+        _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(false);
+        PlayerPrefs.SetInt("SutunSirasi", PlayerPrefs.GetInt("SutunSirasi") + 1);
+        _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(true);
+        _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(true);
 
+        yield return new WaitForSeconds(0.1f);
+
+        _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriYerlestir();
     }
 
     public void KarakterDegis()
@@ -613,6 +636,25 @@ public class IncrementalControlScript : MonoBehaviour
         PlayerPrefs.SetInt("KarakterSirasi", PlayerPrefs.GetInt("KarakterSirasi") + 1);
         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].SetActive(true);
 
+        _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriYerlestir();
+
+    }
+
+    public void YeniLevelBaslangici()
+    {
+        _time = 0;
+        Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
+        _karakterAnimation.SetFloat("Time", _time);
+
+        _ustGucSlider.value = 0;
+        _altGucSlider.value = 0;
+
+        _staminaDeger = 0;
+        _staminaSlider.value = 0;
+
+        _yikim = false;
+
+        StartCoroutine(SutunDegis());
     }
 
 

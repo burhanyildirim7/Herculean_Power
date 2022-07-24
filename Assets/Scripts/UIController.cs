@@ -71,8 +71,10 @@ public class UIController : MonoBehaviour
         TapToStartPanel.SetActive(true);
         WinPanel.SetActive(false);
         GamePanel.SetActive(false);
-        LevelController.instance.NextLevelEvents();
+        //LevelController.instance.NextLevelEvents();
         StartCoroutine(StartScreenCoinEffect());
+
+        IncrementalControlScript.instance.YeniLevelBaslangici();
     }
 
 
