@@ -73,6 +73,8 @@ public class UIController : MonoBehaviour
         GamePanel.SetActive(false);
         //LevelController.instance.NextLevelEvents();
         StartCoroutine(StartScreenCoinEffect());
+        SetGamePlayScoreText();
+        GameController.instance.ScoreCarp(1);
 
         IncrementalControlScript.instance.YeniLevelBaslangici();
     }
@@ -127,7 +129,8 @@ public class UIController : MonoBehaviour
         int sayac = 0;
         while (sayac < GameController.instance.score)
         {
-            sayac += PlayerController.instance.collectibleDegeri;
+            //sayac += PlayerController.instance.collectibleDegeri;
+            sayac += 10;
             if (sayac % 2 * PlayerController.instance.collectibleDegeri == 0)
             {
                 GameObject effectObj = Instantiate(winScreenEffectObject, new Vector3(144, 400, 0), Quaternion.identity, winScreenCoinImage.transform);

@@ -32,6 +32,12 @@ public class IncrementalControlScript : MonoBehaviour
 
     private float _time;
 
+    private int _tiklamaSayac;
+
+    private bool _tamamlandi;
+
+    private bool _yik;
+
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -127,11 +133,19 @@ public class IncrementalControlScript : MonoBehaviour
         _altGucSlider.value = 0;
 
         _yikim = false;
+        _tamamlandi = false;
+        _yik = false;
 
         _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(true);
         _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(true);
 
         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriYerlestir();
+
+        _tiklamaSayac = 0;
+
+        PlayerPrefs.SetInt("totalScore", 99999);
+
+        Application.targetFrameRate = 60;
 
     }
 
@@ -152,62 +166,71 @@ public class IncrementalControlScript : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + 10);
-                    UIController.instance.SetGamePlayScoreText();
+                    //PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + 10);
+                    _tiklamaSayac++;
 
-                    if (_staminaDeger < 22)
+                    if (_tiklamaSayac > 1)
                     {
-                        _staminaDeger += 1.5f;
 
-                        if (_ustGucSlider.value < _altGucSlider.value)
+
+
+                        if (_staminaDeger < 22)
                         {
-                            _ustGucSlider.value += 1;
-                        }
-                        else
-                        {
-                            _altGucSlider.value = _ustGucSlider.value;
-                            _ustGucSlider.value += 1;
-                            _altGucSlider.value = _ustGucSlider.value;
+                            _staminaDeger += 1.5f;
 
-
-                            //_altGucSlider.value += 1;
-                        }
-
-                        if (_ustGucSlider.value >= _altGucSlider.value)
-                        {
-
-                            for (int i = 0; i < 10; i++)
+                            if (_ustGucSlider.value < _altGucSlider.value)
                             {
-                                GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
-                                coin.transform.parent = _coinParent.transform;
-                                GameController.instance.SetScore(1);
+                                _ustGucSlider.value += 1;
                             }
+                            else
+                            {
+                                _altGucSlider.value = _ustGucSlider.value;
+                                _ustGucSlider.value += 1;
+                                _altGucSlider.value = _ustGucSlider.value;
+
+
+                                //_altGucSlider.value += 1;
+                            }
+
+                            if (_ustGucSlider.value >= _altGucSlider.value)
+                            {
+
+                                for (int i = 0; i < 10; i++)
+                                {
+                                    GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
+                                    coin.transform.parent = _coinParent.transform;
+                                    GameController.instance.SetScore(1);
+                                }
+                            }
+                            else
+                            {
+
+                                //_altGucSlider.value += 1;
+                            }
+
+
+                            //Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
+                            if (_time < 0.7f)
+                            {
+                                _time += 0.05f;
+                                _karakterAnimation.SetFloat("Time", _time);
+                            }
+                            else
+                            {
+
+                            }
+
                         }
                         else
                         {
-
-                            //_altGucSlider.value += 1;
-                        }
-
-
-                        //Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
-                        if (_time < 0.7f)
-                        {
-                            _time += 0.05f;
-                            _karakterAnimation.SetFloat("Time", _time);
-                        }
-                        else
-                        {
-
+                            UIController.instance.ActivateLooseScreen();
                         }
 
                     }
                     else
                     {
-                        UIController.instance.ActivateLooseScreen();
+
                     }
-
-
 
                 }
                 else
@@ -255,31 +278,42 @@ public class IncrementalControlScript : MonoBehaviour
 
             if (_time > 0.7f && _time < 1)
             {
-                _time += Time.deltaTime;
-                _karakterAnimation.SetFloat("Time", _time);
-
-                if (_yikim == false)
+                if (_tamamlandi == false)
                 {
-                    _yikim = true;
-                    _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriKopart();
-
-                    for (int i = 0; i < 50; i++)
-                    {
-                        GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
-                        coin.transform.parent = _coinParent.transform;
-                        GameController.instance.SetScore(1);
-                    }
-
                     StartCoroutine(WinSenaryosu());
-
+                    _tamamlandi = true;
                 }
                 else
                 {
 
                 }
 
+                if (_yik)
+                {
+                    _time += Time.deltaTime;
+                    _karakterAnimation.SetFloat("Time", _time);
 
+                    if (_yikim == false)
+                    {
+                        _yikim = true;
+                        _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriKopart();
 
+                        for (int i = 0; i < 50; i++)
+                        {
+                            GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
+                            coin.transform.parent = _coinParent.transform;
+                            GameController.instance.SetScore(1);
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else
+                {
+
+                }
             }
             else
             {
@@ -294,7 +328,7 @@ public class IncrementalControlScript : MonoBehaviour
 
             if (_yikim)
             {
-                Debug.Log(PlayerPrefs.GetInt("SutunDegisimSayaci"));
+                //Debug.Log(PlayerPrefs.GetInt("SutunDegisimSayaci"));
 
                 _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].GetComponent<KinematicAcma>().OpenKinematic();
                 _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].GetComponent<KinematicAcma>().OpenKinematic();
@@ -308,6 +342,10 @@ public class IncrementalControlScript : MonoBehaviour
 
     private IEnumerator WinSenaryosu()
     {
+        yield return new WaitForSeconds(3f);
+
+        _yik = true;
+
         yield return new WaitForSeconds(3f);
 
         UIController.instance.ActivateWinScreen();
@@ -653,8 +691,21 @@ public class IncrementalControlScript : MonoBehaviour
         _staminaSlider.value = 0;
 
         _yikim = false;
+        _tamamlandi = false;
+        _yik = false;
+
+        _tiklamaSayac = 0;
 
         StartCoroutine(SutunDegis());
+
+        for (int i = 0; i < _coinParent.transform.childCount; i++)
+        {
+            //Debug.Log("Coini Yok Et");
+            Destroy(_coinParent.transform.GetChild(i).gameObject);
+        }
+
+        UIController.instance.SetGamePlayScoreText();
+        UIController.instance.SetTapToStartScoreText();
     }
 
 
