@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour
     public static GameController instance; // singleton yapisi icin gerekli ornek ayrintilar icin BeniOku 22. satirdan itibaren bak.
 
 
-    [HideInInspector] public int score, elmas; // ayrintilar icin benioku 9. satirdan itibaren bak
+    [HideInInspector] public float score, elmas; // ayrintilar icin benioku 9. satirdan itibaren bak
 
     [HideInInspector] public bool isContinue;  // ayrintilar icin beni oku 19. satirdan itibaren bak
 
@@ -29,7 +29,7 @@ public class GameController : MonoBehaviour
     /// icin -5 gibi negatif deger girin.
     /// </summary>
     /// <param name="eklenecekScore">Her collectible da ne kadar score eklenip cikarilacaksa parametre olarak o sayi verilmeli</param>
-    public void SetScore(int eklenecekScore)
+    public void SetScore(float eklenecekScore)
     {
         if (PlayerController.instance.collectibleVarMi) score += eklenecekScore;
         // E�er oyunda collectible yok ise developer kendi score sistemini yazmal�...
@@ -59,7 +59,7 @@ public class GameController : MonoBehaviour
     {
         if (PlayerController.instance.xVarMi) score *= katsayi;
         else score = 1 * score;
-        PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + score);
+        PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") + (int)score);
         score = 0;
     }
 

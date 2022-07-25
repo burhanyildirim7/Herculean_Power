@@ -52,6 +52,8 @@ public class IncrementalControlScript : MonoBehaviour
 
     private float _incStaminaDeger;
 
+    private float _incParaKazanma;
+
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -104,7 +106,7 @@ public class IncrementalControlScript : MonoBehaviour
                 _staminaIncBedelText.text = "MAX";
                 _staminaButonPasifPaneli.SetActive(true);
 
-                _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
+                //_incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
             }
             else
             {
@@ -112,7 +114,7 @@ public class IncrementalControlScript : MonoBehaviour
                 _staminaIncBedelText.text = "$" + _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")];
                 _staminaButonPasifPaneli.SetActive(false);
 
-                _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
+                //_incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
             }
 
             if (PlayerPrefs.GetInt("IncomeLevelDegeri") == 75)
@@ -183,6 +185,8 @@ public class IncrementalControlScript : MonoBehaviour
 
         _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
 
+        _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") / 2;
+
         ButonKontrol();
 
         PlayerPrefs.SetInt("totalScore", 99999);
@@ -241,7 +245,7 @@ public class IncrementalControlScript : MonoBehaviour
                                 {
                                     GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
                                     coin.transform.parent = _coinParent.transform;
-                                    GameController.instance.SetScore(1);
+                                    GameController.instance.SetScore(_incParaKazanma);
                                 }
                             }
                             else
@@ -344,7 +348,7 @@ public class IncrementalControlScript : MonoBehaviour
                         {
                             GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
                             coin.transform.parent = _coinParent.transform;
-                            GameController.instance.SetScore(1);
+                            GameController.instance.SetScore(_incParaKazanma);
                         }
                     }
                     else
@@ -720,6 +724,8 @@ public class IncrementalControlScript : MonoBehaviour
 
 
             }
+
+            _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") / 2;
         }
         else
         {
