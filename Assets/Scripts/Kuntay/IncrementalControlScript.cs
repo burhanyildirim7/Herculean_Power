@@ -68,11 +68,15 @@ public class IncrementalControlScript : MonoBehaviour
             PlayerPrefs.SetInt("SutunDegisimSayaci", 0);
             PlayerPrefs.SetInt("PowerLevelDegeri", 1);
             PlayerPrefs.SetInt("StaminaLevelDegeri", 1);
-            PlayerPrefs.SetInt("IncomeLevelDegeri", 0);
+            PlayerPrefs.SetInt("IncomeLevelDegeri", 1);
 
-            _powerIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("PowerLevelDegeri").ToString();
-            _staminaIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("StaminaLevelDegeri").ToString();
-            _incomeIncLevelText.text = "+$ " + PlayerPrefs.GetInt("IncomeLevelDegeri").ToString();
+            //_powerIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("PowerLevelDegeri").ToString();
+            //_staminaIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("StaminaLevelDegeri").ToString();
+            //_incomeIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("IncomeLevelDegeri").ToString();
+
+            _powerIncLevelText.text = "LEVEL 1";
+            _staminaIncLevelText.text = "LEVEL 1";
+            _incomeIncLevelText.text = "LEVEL 1";
 
             _powerIncBedelText.text = "$" + _powerIncBedelDeger.ToString();
             _staminaIncBedelText.text = "$" + _staminaIncBedelDeger.ToString();
