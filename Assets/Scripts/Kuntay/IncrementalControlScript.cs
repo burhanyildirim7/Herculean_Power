@@ -1,8 +1,14 @@
+//using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Obi;
+using Cinemachine.Utility;
+using Cinemachine;
+using DG.Tweening;
+//using Obi;
+
+
 
 public class IncrementalControlScript : MonoBehaviour
 {
@@ -24,6 +30,12 @@ public class IncrementalControlScript : MonoBehaviour
     [SerializeField] private GameObject _coinObjesi;
     [SerializeField] private GameObject _coinParent;
 
+    [SerializeField] private CinemachineVirtualCamera _camera;
+
+    [SerializeField] private List<Vector3> _cameraPoziyonlari = new List<Vector3>();
+
+    private Vector3 _cameraOffset;
+
     private int _karakteriGeriCekenKuvvetSayaci;
 
     public bool _yikim;
@@ -37,6 +49,8 @@ public class IncrementalControlScript : MonoBehaviour
     private bool _tamamlandi;
 
     private bool _yik;
+
+    private float _incStaminaDeger;
 
     private void Awake()
     {
@@ -89,12 +103,16 @@ public class IncrementalControlScript : MonoBehaviour
                 _staminaIncLevelText.text = "MAX";
                 _staminaIncBedelText.text = "MAX";
                 _staminaButonPasifPaneli.SetActive(true);
+
+                _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
             }
             else
             {
                 _staminaIncLevelText.text = "LEVEL " + PlayerPrefs.GetInt("StaminaLevelDegeri").ToString();
                 _staminaIncBedelText.text = "$" + _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")];
                 _staminaButonPasifPaneli.SetActive(false);
+
+                _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
             }
 
             if (PlayerPrefs.GetInt("IncomeLevelDegeri") == 75)
@@ -143,24 +161,48 @@ public class IncrementalControlScript : MonoBehaviour
 
         _tiklamaSayac = 0;
 
+        if (PlayerPrefs.GetInt("SutunSirasi") < 5)
+        {
+            _cameraOffset = _cameraPoziyonlari[0];
+            Debug.Log(_cameraOffset);
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 5 && PlayerPrefs.GetInt("SutunSirasi") < 17)
+        {
+            _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 10);
+            Debug.Log(_cameraOffset);
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 17)
+        {
+            _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 20);
+            Debug.Log(_cameraOffset);
+        }
+        else
+        {
+            Debug.Log(_cameraOffset);
+        }
+
+        _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
+
+        ButonKontrol();
+
         PlayerPrefs.SetInt("totalScore", 99999);
 
         Application.targetFrameRate = 60;
 
     }
 
+    private void Update()
+    {
+        var transposer = _camera.GetCinemachineComponent<CinemachineTransposer>();
+        transposer.m_FollowOffset = _cameraOffset;
+    }
     // Update is called once per frame
     void FixedUpdate()
     {
         if (GameController.instance.isContinue == true)
         {
 
-
-
             Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
-
-
-
 
             if (_time < 0.7f)
             {
@@ -176,7 +218,7 @@ public class IncrementalControlScript : MonoBehaviour
 
                         if (_staminaDeger < 22)
                         {
-                            _staminaDeger += 1.5f;
+                            _staminaDeger += _incStaminaDeger;
 
                             if (_ustGucSlider.value < _altGucSlider.value)
                             {
@@ -342,12 +384,25 @@ public class IncrementalControlScript : MonoBehaviour
 
     private IEnumerator WinSenaryosu()
     {
-        yield return new WaitForSeconds(3f);
 
+
+        yield return new WaitForSeconds(1f);
+
+        DOTween.To(() => _cameraOffset, x => _cameraOffset = x, _cameraPoziyonlari[1], 3);
+
+        yield return new WaitForSeconds(2f);
+
+        //DOTween.To(() => _cameraOffset, x => _cameraOffset = x, _cameraPoziyonlari[2], 1);
         _yik = true;
 
+        // yield return new WaitForSeconds(1f);
+
+        //DOTween.To(() => _cameraOffset, x => _cameraOffset = x, _cameraPoziyonlari[3], 1);
+
+
         yield return new WaitForSeconds(3f);
 
+        GameController.instance.isContinue = false;
         UIController.instance.ActivateWinScreen();
     }
 
@@ -582,6 +637,15 @@ public class IncrementalControlScript : MonoBehaviour
         {
             _powerButonPasifPaneli.SetActive(true);
         }
+
+        if (PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")])
+        {
+            _powerButonPasifPaneli.SetActive(false);
+        }
+        else
+        {
+            _powerButonPasifPaneli.SetActive(true);
+        }
     }
 
     public void StaminaButonu()
@@ -611,7 +675,16 @@ public class IncrementalControlScript : MonoBehaviour
 
             }
 
+            _incStaminaDeger = 1.5f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
+        }
+        else
+        {
+            _staminaButonPasifPaneli.SetActive(true);
+        }
 
+        if (PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")])
+        {
+            _staminaButonPasifPaneli.SetActive(false);
         }
         else
         {
@@ -647,6 +720,15 @@ public class IncrementalControlScript : MonoBehaviour
 
 
             }
+        }
+        else
+        {
+            _incomeButonPasifPaneli.SetActive(true);
+        }
+
+        if (PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")])
+        {
+            _incomeButonPasifPaneli.SetActive(false);
         }
         else
         {
@@ -704,8 +786,113 @@ public class IncrementalControlScript : MonoBehaviour
             Destroy(_coinParent.transform.GetChild(i).gameObject);
         }
 
+        if (PlayerPrefs.GetInt("SutunSirasi") < 5)
+        {
+            _cameraOffset = _cameraPoziyonlari[0];
+            Debug.Log(_cameraOffset);
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 5 && PlayerPrefs.GetInt("SutunSirasi") < 17)
+        {
+            _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 10);
+            Debug.Log(_cameraOffset);
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 17)
+        {
+            _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 20);
+            Debug.Log(_cameraOffset);
+        }
+        else
+        {
+            Debug.Log(_cameraOffset);
+        }
+
+        ButonKontrol();
+
         UIController.instance.SetGamePlayScoreText();
         UIController.instance.SetTapToStartScoreText();
+    }
+
+    public void LeveliBasaAl()
+    {
+        _time = 0;
+        Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
+        _karakterAnimation.SetFloat("Time", _time);
+
+        _ustGucSlider.value = 0;
+        _altGucSlider.value = 0;
+
+        _staminaDeger = 0;
+        _staminaSlider.value = 0;
+
+        _yikim = false;
+        _tamamlandi = false;
+        _yik = false;
+
+        _tiklamaSayac = 0;
+
+        //StartCoroutine(SutunDegis());
+
+        for (int i = 0; i < _coinParent.transform.childCount; i++)
+        {
+            //Debug.Log("Coini Yok Et");
+            Destroy(_coinParent.transform.GetChild(i).gameObject);
+        }
+
+        if (PlayerPrefs.GetInt("SutunSirasi") < 5)
+        {
+            _cameraOffset = _cameraPoziyonlari[0];
+            Debug.Log(_cameraOffset);
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 5 && PlayerPrefs.GetInt("SutunSirasi") < 17)
+        {
+            _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 10);
+            Debug.Log(_cameraOffset);
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 17)
+        {
+            _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 20);
+            Debug.Log(_cameraOffset);
+        }
+        else
+        {
+            Debug.Log(_cameraOffset);
+        }
+
+        ButonKontrol();
+
+
+        UIController.instance.SetGamePlayScoreText();
+        UIController.instance.SetTapToStartScoreText();
+    }
+
+    private void ButonKontrol()
+    {
+        if (PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")])
+        {
+            _powerButonPasifPaneli.SetActive(false);
+        }
+        else
+        {
+            _powerButonPasifPaneli.SetActive(true);
+        }
+
+        if (PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")])
+        {
+            _staminaButonPasifPaneli.SetActive(false);
+        }
+        else
+        {
+            _staminaButonPasifPaneli.SetActive(true);
+        }
+
+        if (PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")])
+        {
+            _incomeButonPasifPaneli.SetActive(false);
+        }
+        else
+        {
+            _incomeButonPasifPaneli.SetActive(true);
+        }
     }
 
 

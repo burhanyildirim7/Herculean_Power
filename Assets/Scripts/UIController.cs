@@ -59,8 +59,14 @@ public class UIController : MonoBehaviour
         GamePanel.SetActive(false);
         LoosePanel.SetActive(false);
         TapToStartPanel.SetActive(true);
-        LevelController.instance.RestartLevelEvents();
+        //LevelController.instance.RestartLevelEvents();
         SetTapToStartScoreText();
+
+        StartCoroutine(StartScreenCoinEffect());
+        SetGamePlayScoreText();
+        GameController.instance.ScoreCarp(1);
+
+        IncrementalControlScript.instance.LeveliBasaAl();
     }
 
 
