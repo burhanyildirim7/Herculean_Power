@@ -23,6 +23,8 @@ public class IncrementalControlScript : MonoBehaviour
 
     [SerializeField] private Slider _staminaSlider;
     [SerializeField] private List<GameObject> _emojiList = new List<GameObject>();
+    [SerializeField] private List<GameObject> _karakterEmojiList = new List<GameObject>();
+    [SerializeField] private List<ParticleSystem> _efektList = new List<ParticleSystem>();
 
     [SerializeField] private Slider _ustGucSlider;
     [SerializeField] private Slider _altGucSlider;
@@ -53,6 +55,13 @@ public class IncrementalControlScript : MonoBehaviour
     private float _incStaminaDeger;
 
     private float _incParaKazanma;
+
+    private float _gucDegeri;
+    private float _timeDegeri;
+
+    private bool _coinSpawn;
+
+    private float _staminaDusurmeTimer;
 
     private void Awake()
     {
@@ -167,12 +176,12 @@ public class IncrementalControlScript : MonoBehaviour
 
         _tiklamaSayac = 0;
 
-        if (PlayerPrefs.GetInt("SutunSirasi") < 5)
+        if (PlayerPrefs.GetInt("SutunSirasi") < 10)
         {
             _cameraOffset = _cameraPoziyonlari[0];
             Debug.Log(_cameraOffset);
         }
-        else if (PlayerPrefs.GetInt("SutunSirasi") >= 5 && PlayerPrefs.GetInt("SutunSirasi") < 17)
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 10 && PlayerPrefs.GetInt("SutunSirasi") < 17)
         {
             _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 10);
             Debug.Log(_cameraOffset);
@@ -189,12 +198,20 @@ public class IncrementalControlScript : MonoBehaviour
 
         _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
 
-        _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") / 2;
+        _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") * 2;
+
+        _ustGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
+        _altGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
+
+        _gucDegeri = 1 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+
+        _timeDegeri = _gucDegeri / _ustGucSlider.maxValue;
 
         ButonKontrol();
 
-        PlayerPrefs.SetInt("totalScore", 99999);
+        //PlayerPrefs.SetInt("totalScore", 99999);
 
+        QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
 
     }
@@ -228,29 +245,30 @@ public class IncrementalControlScript : MonoBehaviour
                         {
                             _staminaDeger += _incStaminaDeger;
 
+                            _staminaDusurmeTimer = 0;
+
+                            MoreMountains.NiceVibrations.MMVibrationManager.Haptic(MoreMountains.NiceVibrations.HapticTypes.MediumImpact);
+
                             if (_ustGucSlider.value < _altGucSlider.value)
                             {
-                                _ustGucSlider.value += 1;
+                                _ustGucSlider.value += _gucDegeri;
                             }
                             else
                             {
                                 _altGucSlider.value = _ustGucSlider.value;
-                                _ustGucSlider.value += 1;
+                                _ustGucSlider.value += _gucDegeri;
                                 _altGucSlider.value = _ustGucSlider.value;
 
 
                                 //_altGucSlider.value += 1;
                             }
 
-                            if (_ustGucSlider.value >= _altGucSlider.value)
+                            if (_ustGucSlider.value >= _altGucSlider.value && _coinSpawn == false)
                             {
+                                StartCoroutine(CoinSpawn());
+                                GameController.instance.SetScore(_incParaKazanma * 10);
+                                _coinSpawn = true;
 
-                                for (int i = 0; i < 10; i++)
-                                {
-                                    GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
-                                    coin.transform.parent = _coinParent.transform;
-                                    GameController.instance.SetScore(_incParaKazanma);
-                                }
                             }
                             else
                             {
@@ -262,7 +280,7 @@ public class IncrementalControlScript : MonoBehaviour
                             //Animator _karakterAnimation = _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<Animator>();
                             if (_time < 0.7f)
                             {
-                                _time += 0.05f;
+                                _time += _timeDegeri;
                                 _karakterAnimation.SetFloat("Time", _time);
                             }
                             else
@@ -273,6 +291,7 @@ public class IncrementalControlScript : MonoBehaviour
                         }
                         else
                         {
+                            GameController.instance.isContinue = false;
                             UIController.instance.ActivateLooseScreen();
                         }
 
@@ -287,7 +306,17 @@ public class IncrementalControlScript : MonoBehaviour
                 {
                     if (_staminaDeger > 0)
                     {
-                        _staminaDeger -= Time.deltaTime * 2;
+                        _staminaDusurmeTimer += Time.deltaTime;
+
+                        if (_staminaDusurmeTimer > 1)
+                        {
+                            _staminaDeger -= Time.deltaTime * 4;
+                        }
+                        else
+                        {
+
+                        }
+
                     }
                     else
                     {
@@ -298,10 +327,10 @@ public class IncrementalControlScript : MonoBehaviour
 
                     if (_time > 0)
                     {
-                        _time -= 0.0005f;
+                        _time -= _timeDegeri * Time.deltaTime * 2;
                         _karakterAnimation.SetFloat("Time", _time);
 
-                        _ustGucSlider.value -= 0.01f;
+                        _ustGucSlider.value -= _gucDegeri * Time.deltaTime * 2;
 
                     }
                     else
@@ -348,12 +377,9 @@ public class IncrementalControlScript : MonoBehaviour
                         _yikim = true;
                         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriKopart();
 
-                        for (int i = 0; i < 50; i++)
-                        {
-                            GameObject coin = Instantiate(_coinObjesi, new Vector3(Random.Range(-1.5f, 1.5f), 3, Random.Range(0.0f, -6.0f)), Quaternion.identity);
-                            coin.transform.parent = _coinParent.transform;
-                            GameController.instance.SetScore(_incParaKazanma);
-                        }
+                        GameController.instance.SetScore(_incParaKazanma * 100);
+
+                        StartCoroutine(FazlaCoinSpawn());
                     }
                     else
                     {
@@ -403,6 +429,12 @@ public class IncrementalControlScript : MonoBehaviour
         //DOTween.To(() => _cameraOffset, x => _cameraOffset = x, _cameraPoziyonlari[2], 1);
         _yik = true;
 
+        _efektList[0].Play();
+        _efektList[1].Play();
+
+        MoreMountains.NiceVibrations.MMVibrationManager.Haptic(MoreMountains.NiceVibrations.HapticTypes.MediumImpact);
+        MoreMountains.NiceVibrations.MMVibrationManager.Haptic(MoreMountains.NiceVibrations.HapticTypes.MediumImpact);
+
         // yield return new WaitForSeconds(1f);
 
         //DOTween.To(() => _cameraOffset, x => _cameraOffset = x, _cameraPoziyonlari[3], 1);
@@ -412,6 +444,46 @@ public class IncrementalControlScript : MonoBehaviour
 
         GameController.instance.isContinue = false;
         UIController.instance.ActivateWinScreen();
+    }
+
+    private IEnumerator CoinSpawn()
+    {
+
+        for (int i = 0; i < 10; i++)
+        {
+            GameObject coin = Instantiate(_coinObjesi, _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].transform.position, Quaternion.identity);
+
+            coin.transform.parent = _coinParent.transform;
+            coin.transform.DOLocalJump(new Vector3(Random.Range(-1.5f, 1.5f), 1f, Random.Range(0.0f, -6.0f)), 3f, 1, 1);
+
+
+
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        _coinSpawn = false;
+    }
+
+    private IEnumerator FazlaCoinSpawn()
+    {
+
+        for (int i = 0; i < 50; i++)
+        {
+            GameObject coin = Instantiate(_coinObjesi, _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].transform.position, Quaternion.identity);
+
+            coin.transform.parent = _coinParent.transform;
+            coin.transform.DOLocalJump(new Vector3(Random.Range(-1.5f, 1.5f), 1f, Random.Range(0.0f, -6.0f)), 3f, 1, 1);
+
+            //GameController.instance.SetScore(_incParaKazanma);
+
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        //yield return new WaitForSeconds(0.1f);
+
+        //_coinSpawn = false;
     }
 
     private void BaslangicButonAyarlari()
@@ -460,6 +532,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[0].SetActive(true);
+
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[0].SetActive(true);
         }
         else if (_staminaDeger > 2 && _staminaDeger <= 4)
         {
@@ -474,6 +553,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[1].SetActive(true);
+
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[0].SetActive(true);
         }
         else if (_staminaDeger > 4 && _staminaDeger <= 6)
         {
@@ -488,6 +574,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[2].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[1].SetActive(true);
         }
         else if (_staminaDeger > 6 && _staminaDeger <= 8)
         {
@@ -502,6 +595,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[3].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[1].SetActive(true);
         }
         else if (_staminaDeger > 8 && _staminaDeger <= 10)
         {
@@ -516,6 +616,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[4].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[2].SetActive(true);
         }
         else if (_staminaDeger > 10 && _staminaDeger <= 12)
         {
@@ -530,6 +637,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[5].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[3].SetActive(true);
         }
         else if (_staminaDeger > 12 && _staminaDeger <= 14)
         {
@@ -544,6 +658,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[6].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[3].SetActive(true);
         }
         else if (_staminaDeger > 14 && _staminaDeger <= 16)
         {
@@ -558,6 +679,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[7].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[4].SetActive(true);
         }
         else if (_staminaDeger > 16 && _staminaDeger <= 18)
         {
@@ -572,6 +700,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[8].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[5].SetActive(false);
+            _karakterEmojiList[4].SetActive(true);
         }
         else if (_staminaDeger > 18 && _staminaDeger <= 20)
         {
@@ -586,6 +721,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[0].SetActive(false);
             _emojiList[10].SetActive(false);
             _emojiList[9].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(true);
         }
         else if (_staminaDeger > 20)
         {
@@ -600,6 +742,13 @@ public class IncrementalControlScript : MonoBehaviour
             _emojiList[9].SetActive(false);
             _emojiList[0].SetActive(false);
             _emojiList[10].SetActive(true);
+
+            _karakterEmojiList[0].SetActive(false);
+            _karakterEmojiList[1].SetActive(false);
+            _karakterEmojiList[2].SetActive(false);
+            _karakterEmojiList[3].SetActive(false);
+            _karakterEmojiList[4].SetActive(false);
+            _karakterEmojiList[5].SetActive(true);
         }
         else
         {
@@ -612,6 +761,8 @@ public class IncrementalControlScript : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("PowerLevelDegeri") < 75 && PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")])
         {
+            MoreMountains.NiceVibrations.MMVibrationManager.Haptic(MoreMountains.NiceVibrations.HapticTypes.MediumImpact);
+
             PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") - _incrementalBedel[PlayerPrefs.GetInt("PowerCostDegeri")]);
             PlayerPrefs.SetInt("PowerLevelDegeri", PlayerPrefs.GetInt("PowerLevelDegeri") + 1);
             PlayerPrefs.SetInt("PowerCostDegeri", PlayerPrefs.GetInt("PowerCostDegeri") + 1);
@@ -640,6 +791,10 @@ public class IncrementalControlScript : MonoBehaviour
                 PlayerPrefs.SetInt("KarakterDegisimSayaci", 1);
                 KarakterDegis();
             }
+
+            _gucDegeri = 1 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+
+            _timeDegeri = _gucDegeri / _ustGucSlider.maxValue;
         }
         else
         {
@@ -660,6 +815,8 @@ public class IncrementalControlScript : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("StaminaLevelDegeri") < 75 && PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")])
         {
+            MoreMountains.NiceVibrations.MMVibrationManager.Haptic(MoreMountains.NiceVibrations.HapticTypes.MediumImpact);
+
             PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") - _incrementalBedel[PlayerPrefs.GetInt("StaminaCostDegeri")]);
             PlayerPrefs.SetInt("StaminaLevelDegeri", PlayerPrefs.GetInt("StaminaLevelDegeri") + 1);
             PlayerPrefs.SetInt("StaminaCostDegeri", PlayerPrefs.GetInt("StaminaCostDegeri") + 1);
@@ -706,6 +863,8 @@ public class IncrementalControlScript : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("IncomeLevelDegeri") < 75 && PlayerPrefs.GetInt("totalScore") > _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")])
         {
+            MoreMountains.NiceVibrations.MMVibrationManager.Haptic(MoreMountains.NiceVibrations.HapticTypes.MediumImpact);
+
             PlayerPrefs.SetInt("totalScore", PlayerPrefs.GetInt("totalScore") - _incrementalBedel[PlayerPrefs.GetInt("IncomeCostDegeri")]);
             PlayerPrefs.SetInt("IncomeLevelDegeri", PlayerPrefs.GetInt("IncomeLevelDegeri") + 1);
             PlayerPrefs.SetInt("IncomeCostDegeri", PlayerPrefs.GetInt("IncomeCostDegeri") + 1);
@@ -729,7 +888,7 @@ public class IncrementalControlScript : MonoBehaviour
 
             }
 
-            _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") / 2;
+            _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") * 2;
         }
         else
         {
@@ -748,6 +907,7 @@ public class IncrementalControlScript : MonoBehaviour
 
     private IEnumerator SutunDegis()
     {
+
         _sagSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(false);
         _solSutunListesi[PlayerPrefs.GetInt("SutunSirasi")].SetActive(false);
         PlayerPrefs.SetInt("SutunSirasi", PlayerPrefs.GetInt("SutunSirasi") + 1);
@@ -757,6 +917,9 @@ public class IncrementalControlScript : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriYerlestir();
+
+
+
     }
 
     public void KarakterDegis()
@@ -765,6 +928,8 @@ public class IncrementalControlScript : MonoBehaviour
         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].SetActive(false);
         PlayerPrefs.SetInt("KarakterSirasi", PlayerPrefs.GetInt("KarakterSirasi") + 1);
         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].SetActive(true);
+
+        _efektList[2].Play();
 
         _karakterListesi[PlayerPrefs.GetInt("KarakterSirasi")].GetComponent<KarakterObiKontrol>().IpleriYerlestir();
 
@@ -796,12 +961,12 @@ public class IncrementalControlScript : MonoBehaviour
             Destroy(_coinParent.transform.GetChild(i).gameObject);
         }
 
-        if (PlayerPrefs.GetInt("SutunSirasi") < 5)
+        if (PlayerPrefs.GetInt("SutunSirasi") < 10)
         {
             _cameraOffset = _cameraPoziyonlari[0];
             Debug.Log(_cameraOffset);
         }
-        else if (PlayerPrefs.GetInt("SutunSirasi") >= 5 && PlayerPrefs.GetInt("SutunSirasi") < 17)
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 10 && PlayerPrefs.GetInt("SutunSirasi") < 17)
         {
             _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 10);
             Debug.Log(_cameraOffset);
@@ -818,8 +983,21 @@ public class IncrementalControlScript : MonoBehaviour
 
         ButonKontrol();
 
+        _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") * 2;
+
+        _ustGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
+        _altGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
+
+        _gucDegeri = 1 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+
+        _timeDegeri = _gucDegeri / _ustGucSlider.maxValue;
+
         UIController.instance.SetGamePlayScoreText();
         UIController.instance.SetTapToStartScoreText();
+
+        _efektList[0].Stop();
+        _efektList[1].Stop();
+        _efektList[2].Stop();
     }
 
     public void LeveliBasaAl()
@@ -848,12 +1026,12 @@ public class IncrementalControlScript : MonoBehaviour
             Destroy(_coinParent.transform.GetChild(i).gameObject);
         }
 
-        if (PlayerPrefs.GetInt("SutunSirasi") < 5)
+        if (PlayerPrefs.GetInt("SutunSirasi") < 10)
         {
             _cameraOffset = _cameraPoziyonlari[0];
             Debug.Log(_cameraOffset);
         }
-        else if (PlayerPrefs.GetInt("SutunSirasi") >= 5 && PlayerPrefs.GetInt("SutunSirasi") < 17)
+        else if (PlayerPrefs.GetInt("SutunSirasi") >= 10 && PlayerPrefs.GetInt("SutunSirasi") < 17)
         {
             _cameraOffset = new Vector3(_cameraPoziyonlari[0].x, _cameraPoziyonlari[0].y, _cameraPoziyonlari[0].z + 10);
             Debug.Log(_cameraOffset);
@@ -870,9 +1048,22 @@ public class IncrementalControlScript : MonoBehaviour
 
         ButonKontrol();
 
+        _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") * 2;
+
+        _ustGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
+        _altGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
+
+        _gucDegeri = 1 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+
+        _timeDegeri = _gucDegeri / _ustGucSlider.maxValue;
+
 
         UIController.instance.SetGamePlayScoreText();
         UIController.instance.SetTapToStartScoreText();
+
+        _efektList[0].Stop();
+        _efektList[1].Stop();
+        _efektList[2].Stop();
     }
 
     private void ButonKontrol()

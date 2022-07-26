@@ -57,8 +57,17 @@ public class KarakterObiKontrol : MonoBehaviour
         _ipler[0].GetComponent<Rigidbody>().isKinematic = true;
         _ipler[1].GetComponent<Rigidbody>().isKinematic = true;
 
-        _ipler[0].transform.position = _solKancaListesi[PlayerPrefs.GetInt("SutunSirasi")].transform.position;
-        _ipler[1].transform.position = _sagKancaListesi[PlayerPrefs.GetInt("SutunSirasi")].transform.position;
+        if (PlayerPrefs.GetInt("SutunSirasi") < 18)
+        {
+            _ipler[0].transform.position = _solKancaListesi[PlayerPrefs.GetInt("SutunSirasi")].transform.position;
+            _ipler[1].transform.position = _sagKancaListesi[PlayerPrefs.GetInt("SutunSirasi")].transform.position;
+        }
+        else
+        {
+            _ipler[0].transform.position = _solKancaListesi[18].transform.position;
+            _ipler[1].transform.position = _sagKancaListesi[18].transform.position;
+        }
+
 
         _kupler[0].transform.DOMoveX(IncrementalControlScript.instance._solSutunListesi[0].transform.position.x, 0.1f);
         _kupler[1].transform.DOMoveX(IncrementalControlScript.instance._sagSutunListesi[0].transform.position.x, 0.1f);
