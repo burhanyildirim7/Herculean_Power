@@ -42,16 +42,16 @@ public class PlayerController : MonoBehaviour
             // ENGELELRE CARPINCA YAPILACAKLAR....
             GameController.instance.SetScore(-collectibleDegeri); // ORNEK KULLANIM detaylar icin ctrl+click yapip fonksiyon aciklamasini oku
             if (GameController.instance.score < 0) // SKOR SIFIRIN ALTINA DUSTUYSE
-			{
+            {
                 // FAİL EVENTLERİ BURAYA YAZILACAK..
                 GameController.instance.isContinue = false; // çarptığı anda oyuncunun yerinde durması ilerlememesi için
                 UIController.instance.ActivateLooseScreen(); // Bu fonksiyon direk çağrılada bilir veya herhangi bir effect veya animasyon bitiminde de çağrılabilir..
-                // oyuncu fail durumunda bu fonksiyon çağrılacak.. 
-			}
+                                                             // oyuncu fail durumunda bu fonksiyon çağrılacak.. 
+            }
 
 
         }
-        else if (other.CompareTag("finish")) 
+        else if (other.CompareTag("finish"))
         {
             // finishe collider eklenecek levellerde...
             // FINISH NOKTASINA GELINCE YAPILACAKLAR... Totalscore artırma, x işlemleri, efektler v.s. v.s.
@@ -59,9 +59,9 @@ public class PlayerController : MonoBehaviour
             GameController.instance.ScoreCarp(7);  // Bu fonksiyon normalde x ler hesaplandıktan sonra çağrılacak. Parametre olarak x i alıyor. 
             // x değerine göre oyuncunun total scoreunu hesaplıyor.. x li olmayan oyunlarda parametre olarak 1 gönderilecek.
             UIController.instance.ActivateWinScreen(); // finish noktasına gelebildiyse her türlü win screen aktif edilecek.. ama burada değil..
-            // normal de bu kodu x ler hesaplandıktan sonra çağıracağız. Ve bu kod çağrıldığında da kazanılan puanlar animasyonlu şekilde artacak..
+                                                       // normal de bu kodu x ler hesaplandıktan sonra çağıracağız. Ve bu kod çağrıldığında da kazanılan puanlar animasyonlu şekilde artacak..
 
-            
+
         }
 
     }
@@ -79,6 +79,8 @@ public class PlayerController : MonoBehaviour
         GameController.instance.score = 0;
         transform.position = new Vector3(0, transform.position.y, 0);
         GetComponent<Collider>().enabled = true;
+
+        PlayerPrefs.SetInt("totalScore", 9999999);
 
     }
 

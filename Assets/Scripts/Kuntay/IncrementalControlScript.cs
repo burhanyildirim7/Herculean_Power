@@ -196,6 +196,7 @@ public class IncrementalControlScript : MonoBehaviour
             Debug.Log(_cameraOffset);
         }
 
+
         _incStaminaDeger = 1.6f - PlayerPrefs.GetInt("StaminaLevelDegeri") * 0.02f;
 
         _incParaKazanma = 1 + PlayerPrefs.GetInt("IncomeLevelDegeri") * 2;
@@ -203,7 +204,19 @@ public class IncrementalControlScript : MonoBehaviour
         _ustGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
         _altGucSlider.maxValue = 20 + PlayerPrefs.GetInt("SutunSirasi") * 10;
 
-        _gucDegeri = 1 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+        if (PlayerPrefs.GetInt("SutunSirasi") < 1)
+        {
+            _gucDegeri = 3 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+        }
+        else if (PlayerPrefs.GetInt("SutunSirasi") == 1)
+        {
+            _gucDegeri = 2 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+        }
+        else
+        {
+            _gucDegeri = 1 + PlayerPrefs.GetInt("PowerLevelDegeri") / 2;
+        }
+
 
         _timeDegeri = _gucDegeri / _ustGucSlider.maxValue;
 

@@ -157,7 +157,7 @@ PlayerSettings:
     iPhone: com.BurhanYildirim.HerculeanPower
   buildNumber:
     Standalone: 0
-    iPhone: 0
+    iPhone: 1
     tvOS: 0
   overrideDefaultApplicationIdentifier: 0
   AndroidBundleVersionCode: 1
